@@ -1,29 +1,29 @@
-import React, { useState, useMemo, useCallback, useContext } from "react";
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useContext,
+  useEffect,
+} from "react";
 import { useDropzone } from "react-dropzone";
 import { BlockchainConfig } from "../context/AppConfig";
 import { useNavigate } from "react-router-dom";
 
 export const UploadNFT = () => {
-  // declaring the useState hooks for this page in here - (fileUrl, formInput, uploadLoading, dragLoad)
-const [fileUrl, setFileUrl] = useState("");
-const [formInput, setFormInput] = useState({
-  price:"",
-  name:"",
-  description:"",
-});
-const [uploadLoading, setuploadLoading] = useState(false);
-const [drag, setDragLoad] = useState(false);
+  const [fileUrl, setFileUrl] = useState("");
+  const [formInput, setFormInput] = useState({
+    price: "",
+    name: "",
+    description: "",
+  });
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [dragLoad, setDragLoad] = useState(false);
 
-  // defining the useNavigate hook
-const navigate = useNavigate();
-  // importing the fns and states from our context api
-const {uploadToIPFS, createNFT, currentAccount, connectWallet} = useContext(BlockchainConfig);
-  // defining the handleCreation function which will be responsible for calling the createNFT function
-  const handleCreation = async () => {
-    setuploadLoading(true);
-    const urlReturned = await uploadToIPFS(fileUrl);
-    const 
-  }
+  const navigate = useNavigate();
+
+  const { uploadToIPFS, createNFT, currentAccount, connectWallet } =
+    useContext(BlockchainConfig);
+
   const onDrop = useCallback(async (acceptedFile) => {
     console.log(acceptedFile[0].type);
     if (
@@ -39,7 +39,6 @@ const {uploadToIPFS, createNFT, currentAccount, connectWallet} = useContext(Bloc
       alert("only image file");
     }
   }, []);
-
   const {
     getRootProps,
     getInputProps,
@@ -51,13 +50,24 @@ const {uploadToIPFS, createNFT, currentAccount, connectWallet} = useContext(Bloc
     accept: "image/*",
     maxSize: 50000000,
   });
-  
+
+  const handleCreation = async () => {
+    setUploadLoading(true);
+    const urlReturned = await createNFT(formInput, fileUrl);
+    setFormInput({
+      price: "",
+      name: "",
+      description: "",
+    });
+    setUploadLoading(false);
+  };
+
   const fileStyle = useMemo(
-    () => `bg-black flex flex-col items-center w-fit m-auto px-2 py-4 border-dashed rounded-lg border cursor-pointer
-         ${isDragActive && "border-file-active border-double"}
-         ${isDragAccept && "border-file-accept border-red-300"}
-         ${isDragReject && "border-file-reject"}
-       `,
+    () => `bg-black flex flex-col items-center w-fit m-auto px-2 py-4 border-dashed rounded-lg border cursor-pointer 
+        ${isDragActive && "border-file-active border-double"} 
+        ${isDragAccept && "border-file-accept border-red-300"}
+        ${isDragReject && "border-file-reject"}
+      `,
     [isDragActive, isDragAccept, isDragReject]
   );
 
@@ -65,14 +75,14 @@ const {uploadToIPFS, createNFT, currentAccount, connectWallet} = useContext(Bloc
     <div>
       <div className="mininav flex justify-between">
         <button
-          onClick={()=>connectWallet()} // call the connect wallet function
+          onClick={() => connectWallet()}
           className="text-white mx-3 mt-2 p-2 rounded-md border-2 hover:bg-white hover:text-black transition-all ease-in-out"
         >
           {currentAccount ? "Connected" : "Connect to Web3"}
-        </button> 
+        </button>
         <button
           disabled={!currentAccount}
-          onClick={()=> navigate("/market")} // call the navigate function to route into /market page
+          onClick={() => navigate("/market")}
           className="text-white mx-3 mt-2 p-2 rounded-md border-2 hover:bg-white hover:text-black transition-all ease-in-out"
         >
           Go to Market
@@ -139,7 +149,7 @@ const {uploadToIPFS, createNFT, currentAccount, connectWallet} = useContext(Bloc
             <button
               btnName="Create NFT"
               className="rounded-xl bg-white p-3 "
-              onClick={()=> handleCreation()} // call the createNFT function
+              onClick={handleCreation}
             >
               Create NFT
             </button>
